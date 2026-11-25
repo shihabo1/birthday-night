@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>Birthday Night</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --night-1: #04061a;
+        --night-2: #0a1030;
+        --night-3: #141b45;
+        --star-white: #fdfdff;
+        --star-gold: #ffd94d;
+        --pink: #ff7eb6;
+        --soft: #cfd6ff;
+        --ink: #f4f6ff;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, var(--night-1) 0%, var(--night-2) 55%, var(--night-3) 100%);
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+
+      /* ---------- background twinkling stars ---------- */
+      #bg-stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+      .bg-star {
+        position: absolute;
+        border-radius: 50%;
+        background: #fff;
+        opacity: .25;
+        animation: twinkle var(--d, 3s) ease-in-out var(--dl, 0s) infinite;
+      }
+      @keyframes twinkle {
+        0%, 100% { opacity: .15; transform: scale(.8); }
+        50% { opacity: .95; transform: scale(1.25); }
+      }
+
+      /* ---------- moon ---------- */
+      .moon {
+        position: fixed;
+        top: 4.5vh;
+        right: 6vw;
+        width: clamp(56px, 16vw, 92px);
+        height: clamp(56px, 16vw, 92px);
+        border-radius: 50%;
+        background: radial-gradient(circle at 38% 34%, #fffdf2 0%, #f7ecc8 55%, #ecd9a0 100%);
+        box-shadow: 0 0 34px 10px rgba(255, 240, 190, .35), 0 0 90px 30px rgba(255, 240, 190, .14);
+        z-index: 1;
+        pointer-events: none;
+      }
+      .moon::before, .moon::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(214, 192, 132, .35);
+      }
+      .moon::before { width: 18%; height: 18%; left: 24%; top: 52%; }
+      .moon::after { width: 12%; height: 12%; left: 58%; top: 30%; }
+
+      /* ---------- fireworks canvas ---------- */
+      #fx { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+
+      /* ---------- layout ---------- */
+      main {
+        position: relative;
+        z-index: 2;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: max(2.2vh, env(safe-area-inset-top)) 5vw max(2vh, env(safe-area-inset-bottom));
+      }
+
+      header { text-align: center; margin-top: 1.2vh; max-width: 640px; }
+      h1 {
+        margin: 0;
+        font-size: clamp(1.55rem, 6.4vw, 2.6rem);
+        font-weight: 800;
+        line-height: 1.25;
+        color: #fffbe8;
+        text-shadow: 0 0 14px rgba(255, 217, 77, .75), 0 0 42px rgba(255, 160, 60, .45);
+      }
+      .subtitle {
+        margin: .55em 0 0;
+        font-size: clamp(1.02rem, 4.4vw, 1.45rem);
+        font-weight: 600;
+        color: var(--pink);
+        text-shadow: 0 0 16px rgba(255, 126, 182, .65);
+      }
+      .hint {
+        margin: .7em 0 0;
+        font-size: clamp(.8rem, 3.4vw, .95rem);
+        color: var(--soft);
+        opacity: .85;
+      }
+
+      /* ---------- the six wish stars ---------- */
+      .star-field {
+        position: relative;
+        width: min(92vw, 560px);
+        flex: 1 1 auto;
+        min-height: 0;
+        margin-top: 1vh;
+      }
+      .wish-star {
+        position: absolute;
+        width: clamp(58px, 15vw, 76px);
+        height: clamp(58px, 15vw, 76px);
+        padding: 10px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        color: var(--star-white);
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, .85)) drop-shadow(0 0 26px rgba(170, 190, 255, .5));
+        animation: starPulse 2.6s ease-in-out infinite;
+        animation-delay: var(--pd, 0s);
+        transition: color .45s ease, filter .45s ease, transform .2s ease;
+      }
+      .wish-star svg { display: block; width: 100%; height: 100%; }
+      .wish-star:active { transform: scale(.9); }
+      .wish-star.opened {
+        color: var(--star-gold);
+        filter: drop-shadow(0 0 12px rgba(255, 217, 77, .95)) drop-shadow(0 0 34px rgba(255, 180, 40, .55));
+        animation: starPulseGold 2.6s ease-in-out infinite;
+      }
+      @keyframes starPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      @keyframes starPulseGold {
+        0%, 100% { transform: scale(1.06); }
+        50% { transform: scale(1.16); }
+      }
+      .s1 { left: 4%;  top: 6%;  --pd: 0s; }
+      .s2 { left: 38%; top: 0%;  --pd: .5s; }
+      .s3 { left: 72%; top: 8%;  --pd: 1s; }
+      .s4 { left: 16%; top: 48%; --pd: .8s; }
+      .s5 { left: 50%; top: 42%; --pd: .3s; }
+      .s6 { left: 76%; top: 52%; --pd: 1.3s; }
+
+      /* ---------- wish + counter ---------- */
+      .wish-box {
+        width: min(92vw, 560px);
+        min-height: 4.6em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: .8em 1.1em;
+        border-radius: 18px;
+        background: rgba(16, 22, 58, .72);
+        border: 1px solid rgba(160, 175, 255, .28);
+        box-shadow: 0 6px 28px rgba(0, 0, 0, .35);
+      }
+      .wish-text {
+        margin: 0;
+        font-size: clamp(1.02rem, 4.6vw, 1.3rem);
+        font-weight: 600;
+        line-height: 1.45;
+        color: #fff6d9;
+      }
+      .wish-text.placeholder { color: var(--soft); font-weight: 400; font-size: clamp(.92rem, 4vw, 1.08rem); }
+      .wish-text.pop { animation: wishPop .45s ease; }
+      @keyframes wishPop {
+        0% { opacity: 0; transform: translateY(8px) scale(.96); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      .counter {
+        margin: 1.4vh 0 0;
+        font-size: clamp(.88rem, 3.8vw, 1rem);
+        font-weight: 600;
+        letter-spacing: .02em;
+        color: var(--soft);
+      }
+      .counter b { color: var(--star-gold); }
+
+      /* ---------- final message ---------- */
+      .finale {
+        position: fixed;
+        inset: 0;
+        z-index: 6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6vw;
+        background: rgba(3, 5, 20, .45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .8s ease;
+      }
+      .finale.show { opacity: 1; pointer-events: auto; }
+      .finale-card {
+        max-width: 560px;
+        text-align: center;
+        padding: 1.4em 1.3em;
+        border-radius: 22px;
+        background: rgba(14, 19, 52, .88);
+        border: 1px solid rgba(255, 217, 77, .4);
+        box-shadow: 0 0 44px rgba(255, 180, 60, .25), 0 14px 40px rgba(0, 0, 0, .5);
+        transform: scale(.92);
+        transition: transform .8s cubic-bezier(.2, 1.4, .4, 1);
+      }
+      .finale.show .finale-card { transform: scale(1); }
+      .finale-text {
+        margin: 0;
+        font-size: clamp(1.15rem, 5.2vw, 1.6rem);
+        font-weight: 700;
+        line-height: 1.55;
+        color: #fff3cf;
+        text-shadow: 0 0 18px rgba(255, 200, 80, .45);
+      }
+      .finale-close {
+        margin-top: 1.1em;
+        min-height: 44px;
+        padding: .55em 1.6em;
+        border: 0;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ff9ec7, #ff6fae);
+        color: #fff;
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 6px 20px rgba(255, 111, 174, .45);
+      }
+      .finale-close:active { transform: scale(.96); }
+
+      @media (max-width: 600px) {
+        .moon {
+          width: 52px;
+          height: 52px;
+          top: 1.6vh;
+          right: 4vw;
+        }
+        header { margin-top: 7.5vh; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .bg-star, .wish-star, .wish-star.opened { animation: none; }
+        .wish-text.pop { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="bg-stars" aria-hidden="true"></div>
+    <div class="moon" aria-hidden="true"></div>
+    <canvas id="fx" aria-hidden="true"></canvas>
+
+    <main id="skyTap">
+      <header>
+        <h1>Ajker rat-ta sudhu tomar ✨</h1>
+        <p class="subtitle">Happy Birthday, Romaisa! 🎂</p>
+        <p class="hint">Prottek tara-r bhetore ekta kore wish lukano ache — tara te tap kore khulo ⭐</p>
+      </header>
+
+      <div class="star-field" role="group" aria-label="Wish tara">
+        <button class="wish-star s1" type="button" data-i="0" aria-label="Tara 1"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 4 L61.8 36.1 L95.9 37.1 L69 57.6 L78.2 90.9 L50 71.8 L21.8 90.9 L31 57.6 L4.1 37.1 L38.2 36.1 Z"/></svg></button>
+        <button class="wish-star s2" type="button" data-i="1" aria-label="Tara 2"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 4 L61.8 36.1 L95.9 37.1 L69 57.6 L78.2 90.9 L50 71.8 L21.8 90.9 L31 57.6 L4.1 37.1 L38.2 36.1 Z"/></svg></button>
+        <button class="wish-star s3" type="button" data-i="2" aria-label="Tara 3"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 4 L61.8 36.1 L95.9 37.1 L69 57.6 L78.2 90.9 L50 71.8 L21.8 90.9 L31 57.6 L4.1 37.1 L38.2 36.1 Z"/></svg></button>
+        <button class="wish-star s4" type="button" data-i="3" aria-label="Tara 4"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 4 L61.8 36.1 L95.9 37.1 L69 57.6 L78.2 90.9 L50 71.8 L21.8 90.9 L31 57.6 L4.1 37.1 L38.2 36.1 Z"/></svg></button>
+        <button class="wish-star s5" type="button" data-i="4" aria-label="Tara 5"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 4 L61.8 36.1 L95.9 37.1 L69 57.6 L78.2 90.9 L50 71.8 L21.8 90.9 L31 57.6 L4.1 37.1 L38.2 36.1 Z"/></svg></button>
+        <button class="wish-star s6" type="button" data-i="5" aria-label="Tara 6"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 4 L61.8 36.1 L95.9 37.1 L69 57.6 L78.2 90.9 L50 71.8 L21.8 90.9 L31 57.6 L4.1 37.1 L38.2 36.1 Z"/></svg></button>
+      </div>
+
+      <div class="wish-box" aria-live="polite">
+        <p class="wish-text placeholder" id="wishText">Ekta tara te tap koro, tomar jonno ekta wish khulbe… 🌙</p>
+      </div>
+      <p class="counter">Tara khullo: <b id="count">0</b>/6</p>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var WISHES = [
+          "Tumi amar everything, babyy 🥹",
+          "Allah tomar moner sob iccha puron koruk 💖",
+          "Hasi khushi thako sob somoy, amar pakhi",
+          "Ami asi tomar pashe, sob somoy 😁",
+          "Love youuu soooo much, amar lokkhi bou 💋💋💋",
+          "Khub taratari tomake biye korbo 🤭"
+        ];
+
+        /* ----- background twinkling stars ----- */
+        var bg = document.getElementById("bg-stars");
+        var starCount = Math.min(130, Math.floor(window.innerWidth * window.innerHeight / 9000));
+        for (var i = 0; i < starCount; i++) {
+          var s = document.createElement("span");
+          s.className = "bg-star";
+          var size = (Math.random() * 2.2 + 1).toFixed(1);
+          s.style.width = size + "px";
+          s.style.height = size + "px";
+          s.style.left = (Math.random() * 100).toFixed(2) + "%";
+          s.style.top = (Math.random() * 100).toFixed(2) + "%";
+          s.style.setProperty("--d", (Math.random() * 2.5 + 2).toFixed(2) + "s");
+          s.style.setProperty("--dl", (Math.random() * 3).toFixed(2) + "s");
+          bg.appendChild(s);
+        }
+
+        /* ----- fireworks ----- */
+        var canvas = document.getElementById("fx");
+        var ctx = canvas.getContext("2d");
+        var particles = [];
+        var rafId = null;
+
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener("resize", resize);
+
+        var COLORS = ["#ffd94d", "#ff7eb6", "#8fd0ff", "#b6ff9e", "#ffffff", "#ffb36b"];
+
+        function burst(x, y, big) {
+          var n = big ? 90 : 34;
+          var power = big ? 7.2 : 4.4;
+          var color = COLORS[Math.floor(Math.random() * COLORS.length)];
+          for (var j = 0; j < n; j++) {
+            var angle = Math.random() * Math.PI * 2;
+            var speed = (Math.random() * 0.85 + 0.25) * power;
+            particles.push({
+              x: x, y: y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              life: 1,
+              decay: Math.random() * 0.011 + 0.008,
+              size: Math.random() * 2.4 + 1.2,
+              color: Math.random() < 0.3 ? "#ffffff" : color
+            });
+          }
+          if (!rafId) rafId = requestAnimationFrame(tick);
+        }
+
+        function tick() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles = particles.filter(function (p) { return p.life > 0; });
+          for (var k = 0; k < particles.length; k++) {
+            var p = particles[k];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.045;
+            p.vx *= 0.985;
+            p.vy *= 0.985;
+            p.life -= p.decay;
+            ctx.globalAlpha = Math.max(p.life, 0);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          if (particles.length) {
+            rafId = requestAnimationFrame(tick);
+          } else {
+            rafId = null;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+
+        function celebrate() {
+          var w = window.innerWidth, h = window.innerHeight;
+          var spots = [
+            [w * 0.25, h * 0.28], [w * 0.72, h * 0.22], [w * 0.5, h * 0.4],
+            [w * 0.15, h * 0.5], [w * 0.85, h * 0.48], [w * 0.38, h * 0.16],
+            [w * 0.62, h * 0.55]
+          ];
+          spots.forEach(function (sp, idx) {
+            setTimeout(function () { burst(sp[0], sp[1], true); }, idx * 260);
+          });
+        }
+
+        /* ----- wish stars ----- */
+        var opened = [false, false, false, false, false, false];
+        var openedCount = 0;
+        var wishText = document.getElementById("wishText");
+        var countEl = document.getElementById("count");
+        var finaleShown = false;
+
+        function showFinale() {
+          var finale = document.createElement("div");
+          finale.className = "finale";
+          finale.setAttribute("role", "dialog");
+          finale.setAttribute("aria-label", "Sesh message");
+          var card = document.createElement("div");
+          card.className = "finale-card";
+          var text = document.createElement("p");
+          text.className = "finale-text";
+          text.textContent = "Birthday sesh holeo valobasha sesh hobe na 💖 — Happy Birthday, amar cutee honeyyy 🎂💖";
+          var closeBtn = document.createElement("button");
+          closeBtn.className = "finale-close";
+          closeBtn.type = "button";
+          closeBtn.textContent = "Akasher dike takao 🎆";
+          card.appendChild(text);
+          card.appendChild(closeBtn);
+          finale.appendChild(card);
+          document.body.appendChild(finale);
+          finale.addEventListener("click", function (ev) { ev.stopPropagation(); });
+          closeBtn.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            finale.classList.remove("show");
+            setTimeout(function () { finale.remove(); }, 850);
+            celebrate();
+          });
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { finale.classList.add("show"); });
+          });
+        }
+
+        document.querySelectorAll(".wish-star").forEach(function (btn) {
+          btn.addEventListener("click", function (ev) {
+            ev.stopPropagation();
+            var i = parseInt(btn.getAttribute("data-i"), 10);
+            var rect = btn.getBoundingClientRect();
+            burst(rect.left + rect.width / 2, rect.top + rect.height / 2, false);
+
+            wishText.textContent = WISHES[i];
+            wishText.classList.remove("placeholder");
+            wishText.classList.remove("pop");
+            void wishText.offsetWidth;
+            wishText.classList.add("pop");
+
+            if (!opened[i]) {
+              opened[i] = true;
+              btn.classList.add("opened");
+              openedCount++;
+              countEl.textContent = openedCount;
+              if (openedCount === 6 && !finaleShown) {
+                finaleShown = true;
+                setTimeout(function () {
+                  celebrate();
+                  showFinale();
+                }, 650);
+              }
+            }
+          });
+        });
+
+        /* ----- tap anywhere on the sky: small firework ----- */
+        document.addEventListener("click", function (ev) {
+          burst(ev.clientX, ev.clientY, false);
+        });
+      })();
+    </script>
+  </body>
+</html>
